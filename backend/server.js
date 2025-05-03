@@ -1,4 +1,4 @@
-// server.js
+// backend/server.js
 import express           from 'express';
 import mongoose          from 'mongoose';
 import cors              from 'cors';
@@ -14,49 +14,48 @@ dotenv.config();
 const app        = express();
 const httpServer = createServer(app);
 
-// Allow multiple origins via CLIENT_URLS env var, fallback to localhost:
-const CLIENT_URLS = (process.env.CLIENT_URLS || 'http://localhost:3000').split(',');
+// Read comma-separated origins from env
+// e.g. CLIENT_URLS="http://localhost:3000,https://bookloop1.netlify.app"
+const CLIENT_URLS = (process.env.CLIENT_URLS || '')
+  .split(',')
+  .map((u) => u.trim())
+  .filter(Boolean);
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: CLIENT_URLS,
-    methods: ['GET','POST'],
-    credentials: true
-  }
-});
-
-// --- Middleware ---
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl) or from our list
-    if (!origin || CLIENT_URLS.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error(`CORS policy: origin ${origin} not allowed`));
-  },
-  methods: ['GET','POST','PUT','DELETE'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: CLIENT_URLS,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+  })
+);
 
-// --- Static uploads ---
+// Static uploads
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// --- Connect & patch MongoDB ---
+// Socket.IO with same CORS
+const io = new Server(httpServer, {
+  cors: {
+    origin: CLIENT_URLS,
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+// ───── MongoDB connect & geo-index patcher ─────
 import Book     from './models/Book.js';
 import Donation from './models/Donation.js';
 
-const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
-
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose
+  .connect(process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/test')
   .then(async () => {
-    console.log('✅ MongoDB connected to', MONGO_URI);
+    console.log('✅  MongoDB connected');
 
-    // One-time patch for any docs missing proper geo coords
-    for (const [Model, label] of [[Book,'Book'], [Donation,'Donation']]) {
+    // Patch any docs missing coords
+    const patchBadLocations = async (Model, label) => {
       const bad = await Model.find({
         $or: [
           { 'location.coordinates': { $exists: false } },
@@ -64,30 +63,34 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
         ]
       });
       if (bad.length) {
-        console.warn(`⚠️ Patching ${bad.length} ${label} docs with dummy coords`);
-        await Promise.all(bad.map(doc => {
-          doc.location = { type: 'Point', coordinates: [0,0] };
-          return doc.save();
-        }));
+        console.warn(`⚠️  Patching ${bad.length} ${label} docs with [0,0] coords`);
+        for (const doc of bad) {
+          doc.location = { type: 'Point', coordinates: [0, 0] };
+          await doc.save();
+        }
       }
-      await Model.syncIndexes();
-    }
-    console.log('🔄 Geo indexes ready');
+    };
+
+    await patchBadLocations(Book, 'Book');
+    await patchBadLocations(Donation, 'Donation');
+    await Book.syncIndexes();
+    await Donation.syncIndexes();
+    console.log('🔄  Geo indexes ready');
   })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
+  .catch((err) => {
+    console.error('❌  MongoDB connection error:', err.message);
     process.exit(1);
   });
 
-// --- Socket.IO handlers ---
-io.on('connection', socket => {
-  socket.on('join-chat', chatId => socket.join(chatId));
-  socket.on('send-message', data => {
-    io.to(data.chatId).emit('new-message', { ...data, timestamp: new Date() });
-  });
+// ───── Socket.IO handlers ─────
+io.on('connection', (socket) => {
+  socket.on('join-chat', (chatId) => socket.join(chatId));
+  socket.on('send-message', (data) =>
+    io.to(data.chatId).emit('new-message', { ...data, timestamp: new Date() })
+  );
 });
 
-// --- API Routes ---
+// ───── Route registrations ─────
 import userRoutes         from './routes/userRoutes.js';
 import bookRoutes         from './routes/bookRoutes.js';
 import donationRoutes     from './routes/donationRoutes.js';
@@ -102,18 +105,14 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat',          chatRoutes);
 app.use('/api/ai',            aiRoutes);
 
-app.get('/', (_req, res) => {
-  res.send('📚 BookLoop backend is up!');
-});
+app.get('/', (_req, res) => res.send('Backend server is running…'));
 
-// --- Global error handler ---
+// Global error handler
 app.use((err, _req, res, _next) => {
-  console.error('🔥 Uncaught error:', err.message || err);
-  res.status(500).json({ message: err.message || 'Server error' });
+  console.error(err);
+  res.status(500).json({ message: err.message });
 });
 
-// --- Start server ---
-const PORT = parseInt(process.env.PORT, 10) || 5000;
-httpServer.listen(PORT, () =>
-  console.log(`🚀 Listening on port ${PORT}, allowed origins: ${CLIENT_URLS.join(', ')}`)
-);
+// Start both Express & Socket.IO on same port
+const PORT = process.env.PORT || 5000;
+httpServer.listen(PORT, () => console.log(`🚀  Listening on port ${PORT}`));
