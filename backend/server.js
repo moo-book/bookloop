@@ -12,6 +12,7 @@ import { Server as SocketIOServer } from 'socket.io';
 // load .env
 dotenv.config();
 
+// parse allowed client origins from env
 const CLIENT_URLS = (process.env.CLIENT_URLS || '')
   .split(',')
   .map(u => u.trim())
@@ -22,22 +23,28 @@ if (!CLIENT_URLS.length) {
   process.exit(1);
 }
 
-const app = express();
-app.use(cookieParser());
-app.use(express.json());
-
-// CORS: only allow our front-ends, plus credentials
-app.use(cors({
-  origin: (incomingOrigin, cb) => {
+// CORS options for Express
+const corsOptions = {
+  origin: (incomingOrigin, callback) => {
+    // allow requests with no origin (e.g. mobile apps, curl)
     if (!incomingOrigin || CLIENT_URLS.includes(incomingOrigin)) {
-      cb(null, true);
+      callback(null, true);
     } else {
-      cb(new Error(`CORS block: ${incomingOrigin}`));
+      callback(new Error(`Not allowed by CORS: ${incomingOrigin}`));
     }
   },
-  methods: ['GET','POST','PUT','DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-}));
+};
+
+// apply CORS to all routes and enable preflight
+const app = express();
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));    // <-- allow preflight across the board
+
+app.use(cookieParser());
+app.use(express.json());
 
 // serve uploads
 const __filename = fileURLToPath(import.meta.url);
@@ -64,21 +71,22 @@ app.get('/', (_req, res) => res.send('Backend is up'));
 // error handler
 app.use((err, _req, res, _next) => {
   console.error(err);
-  if (err.message.startsWith('CORS block')) {
+  if (err.message.startsWith('Not allowed by CORS')) {
     return res.status(403).json({ message: err.message });
   }
   res.status(500).json({ message: err.message });
 });
 
-// connect DB & start
+// connect DB & start HTTP + Socket.IO server
 mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ MongoDB connected');
     const httpServer = createServer(app);
+
     const io = new SocketIOServer(httpServer, {
       cors: {
         origin: CLIENT_URLS,
-        methods: ['GET','POST'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         credentials: true,
       }
     });
