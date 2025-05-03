@@ -21,11 +21,17 @@ const CLIENT_URLS = (process.env.CLIENT_URLS || '')
   .map((u) => u.trim())
   .filter(Boolean);
 
+if (!CLIENT_URLS.length) {
+  console.warn(
+    '⚠️  No CLIENT_URLS defined! Socket.IO and API CORS will allow everything temporarily.'
+  );
+}
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
-    origin: CLIENT_URLS,
+    origin: CLIENT_URLS.length ? CLIENT_URLS : true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   })
@@ -39,7 +45,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // ── Socket.IO with same CORS ──
 const io = new Server(httpServer, {
   cors: {
-    origin: CLIENT_URLS,
+    origin: CLIENT_URLS.length ? CLIENT_URLS : '*',
     methods: ['GET', 'POST'],
     credentials: true
   }

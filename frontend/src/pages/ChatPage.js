@@ -5,36 +5,31 @@ import { io } from 'socket.io-client';
 import api from '../api';
 import './ChatPage.css';
 
-// ─── Point socket.io at your BACKEND (Render) ───
-// Replace with your actual backend origin; must match CORS on server.
-const SOCKET_URL = (
+// Point Socket.IO at your Render backend
+const socket = io(
   process.env.REACT_APP_API_URL
     ? process.env.REACT_APP_API_URL.replace('/api', '')
-    : 'https://bookloop-q8dv.onrender.com'
+    : 'https://bookloop-q8dv.onrender.com',
+  {
+    withCredentials: true
+  }
 );
-
-const socket = io(SOCKET_URL, {
-  withCredentials: true
-});
 
 function ChatPage() {
   const { chatId } = useParams();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
-  const [text,     setText]     = useState('');
+  const [text, setText] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Join this chat room
+    // Join chat room
     socket.emit('join-chat', chatId);
 
-    // Load existing messages from DB
+    // Load existing messages
     (async () => {
       try {
-        const res = await api.get(
-          `/chat/session/${chatId}`,
-          { withCredentials: true }
-        );
+        const res = await api.get(`/chat/session/${chatId}`, { withCredentials: true });
         setMessages(res.data);
       } catch (err) {
         console.error(err);
@@ -42,7 +37,7 @@ function ChatPage() {
       }
     })();
 
-    // Listen for new incoming messages
+    // Listen for new messages
     socket.on('new-message', (msg) => {
       if (msg.chatId === chatId) {
         setMessages((prev) => [...prev, msg]);
@@ -54,7 +49,6 @@ function ChatPage() {
     };
   }, [chatId, navigate]);
 
-  // auto-scroll on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -63,12 +57,13 @@ function ChatPage() {
     if (!text.trim()) return;
     const sender = localStorage.getItem('userId') || 'Anonymous';
     try {
-      // Persist to DB
-      await api.post('/chat/session/send',
+      // Save to DB
+      await api.post(
+        '/chat/session/send',
         { chatId, text, sender },
         { withCredentials: true }
       );
-      // Emit via WebSocket
+      // Emit via socket
       socket.emit('send-message', { chatId, text, sender });
       setText('');
     } catch (err) {
