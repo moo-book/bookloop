@@ -5,25 +5,36 @@ import { io } from 'socket.io-client';
 import api from '../api';
 import './ChatPage.css';
 
-const socket = io(process.env.REACT_APP_API_URL.replace('/api',''), {
+// ─── Point socket.io at your BACKEND (Render) ───
+// Replace with your actual backend origin; must match CORS on server.
+const SOCKET_URL = (
+  process.env.REACT_APP_API_URL
+    ? process.env.REACT_APP_API_URL.replace('/api', '')
+    : 'https://bookloop-q8dv.onrender.com'
+);
+
+const socket = io(SOCKET_URL, {
   withCredentials: true
 });
 
 function ChatPage() {
   const { chatId } = useParams();
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
   const [messages, setMessages] = useState([]);
-  const [text, setText] = useState('');
+  const [text,     setText]     = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Join chat room
+    // Join this chat room
     socket.emit('join-chat', chatId);
 
-    // Load existing messages
+    // Load existing messages from DB
     (async () => {
       try {
-        const res = await api.get(`/chat/session/${chatId}`, { withCredentials: true });
+        const res = await api.get(
+          `/chat/session/${chatId}`,
+          { withCredentials: true }
+        );
         setMessages(res.data);
       } catch (err) {
         console.error(err);
@@ -31,7 +42,7 @@ function ChatPage() {
       }
     })();
 
-    // Listen for new messages
+    // Listen for new incoming messages
     socket.on('new-message', (msg) => {
       if (msg.chatId === chatId) {
         setMessages((prev) => [...prev, msg]);
@@ -43,6 +54,7 @@ function ChatPage() {
     };
   }, [chatId, navigate]);
 
+  // auto-scroll on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -50,15 +62,13 @@ function ChatPage() {
   const handleSend = async () => {
     if (!text.trim()) return;
     const sender = localStorage.getItem('userId') || 'Anonymous';
-    // send to server
     try {
-      // Save to DB
-      await api.post('/chat/session/send', {
-        chatId,
-        text,
-        sender
-      }, { withCredentials: true });
-      // Emit via socket
+      // Persist to DB
+      await api.post('/chat/session/send',
+        { chatId, text, sender },
+        { withCredentials: true }
+      );
+      // Emit via WebSocket
       socket.emit('send-message', { chatId, text, sender });
       setText('');
     } catch (err) {
@@ -85,7 +95,7 @@ function ChatPage() {
 
       <div className="chat-messages">
         {messages.map((msg, idx) => {
-          const isMine = (msg.sender === localStorage.getItem('userId'));
+          const isMine = msg.sender === localStorage.getItem('userId');
           return (
             <div
               key={idx}
@@ -110,6 +120,7 @@ function ChatPage() {
           placeholder="Type message..."
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
         />
         <img
           src="/images/send.png"

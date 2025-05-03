@@ -14,7 +14,7 @@ dotenv.config();
 const app        = express();
 const httpServer = createServer(app);
 
-// Read comma-separated origins from env
+// ── Load allowed origins from env (comma-separated) ──
 // e.g. CLIENT_URLS="http://localhost:3000,https://bookloop1.netlify.app"
 const CLIENT_URLS = (process.env.CLIENT_URLS || '')
   .split(',')
@@ -31,12 +31,12 @@ app.use(
   })
 );
 
-// Static uploads
+// ── Serve upload folder ──
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Socket.IO with same CORS
+// ── Socket.IO with same CORS ──
 const io = new Server(httpServer, {
   cors: {
     origin: CLIENT_URLS,
@@ -45,7 +45,7 @@ const io = new Server(httpServer, {
   }
 });
 
-// ───── MongoDB connect & geo-index patcher ─────
+// ── MongoDB connect & geo-index patcher ──
 import Book     from './models/Book.js';
 import Donation from './models/Donation.js';
 
@@ -54,7 +54,7 @@ mongoose
   .then(async () => {
     console.log('✅  MongoDB connected');
 
-    // Patch any docs missing coords
+    // patch any docs missing valid coords
     const patchBadLocations = async (Model, label) => {
       const bad = await Model.find({
         $or: [
@@ -82,7 +82,7 @@ mongoose
     process.exit(1);
   });
 
-// ───── Socket.IO handlers ─────
+// ── Socket.IO events ──
 io.on('connection', (socket) => {
   socket.on('join-chat', (chatId) => socket.join(chatId));
   socket.on('send-message', (data) =>
@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
   );
 });
 
-// ───── Route registrations ─────
+// ── Routes ──
 import userRoutes         from './routes/userRoutes.js';
 import bookRoutes         from './routes/bookRoutes.js';
 import donationRoutes     from './routes/donationRoutes.js';
@@ -107,12 +107,12 @@ app.use('/api/ai',            aiRoutes);
 
 app.get('/', (_req, res) => res.send('Backend server is running…'));
 
-// Global error handler
+// global error handler
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ message: err.message });
 });
 
-// Start both Express & Socket.IO on same port
+// start server & Socket.IO
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => console.log(`🚀  Listening on port ${PORT}`));
