@@ -5,15 +5,16 @@ import { io } from 'socket.io-client';
 import api from '../api';
 import './ChatPage.css';
 
-// Point Socket.IO at your Render backend
-const socket = io(
+// Derive socket URL from the same API URL (strip "/api")
+const SOCKET_URL = (
   process.env.REACT_APP_API_URL
-    ? process.env.REACT_APP_API_URL.replace('/api', '')
-    : 'https://bookloop-q8dv.onrender.com',
-  {
-    withCredentials: true
-  }
+    ? process.env.REACT_APP_API_URL.replace(/\/api\/?$/, '')
+    : window.location.origin
 );
+
+const socket = io(SOCKET_URL, {
+  withCredentials: true
+});
 
 function ChatPage() {
   const { chatId } = useParams();
@@ -39,9 +40,7 @@ function ChatPage() {
 
     // Listen for new messages
     socket.on('new-message', (msg) => {
-      if (msg.chatId === chatId) {
-        setMessages((prev) => [...prev, msg]);
-      }
+      if (msg.chatId === chatId) setMessages(prev => [...prev, msg]);
     });
 
     return () => {
@@ -57,13 +56,13 @@ function ChatPage() {
     if (!text.trim()) return;
     const sender = localStorage.getItem('userId') || 'Anonymous';
     try {
-      // Save to DB
+      // Persist to backend
       await api.post(
         '/chat/session/send',
         { chatId, text, sender },
         { withCredentials: true }
       );
-      // Emit via socket
+      // Broadcast via socket
       socket.emit('send-message', { chatId, text, sender });
       setText('');
     } catch (err) {
@@ -114,8 +113,8 @@ function ChatPage() {
           className="text-input"
           placeholder="Type message..."
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSend()}
         />
         <img
           src="/images/send.png"

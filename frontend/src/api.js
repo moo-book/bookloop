@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
   withCredentials: true           // always send/receive cookies
 });
 
@@ -11,10 +11,9 @@ api.interceptors.response.use(
   res => res,
   err => {
     if (err.response?.status === 401) {
-      // remove any stale local auth
+      // remove stale auth
       localStorage.removeItem('userId');
       localStorage.removeItem('username');
-      // send the user to login (but avoid infinite loop)
       if (!window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';
       }

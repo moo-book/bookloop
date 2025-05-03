@@ -22,30 +22,33 @@ const CLIENT_URLS = (process.env.CLIENT_URLS || '')
   .filter(Boolean);
 
 if (!CLIENT_URLS.length) {
-  console.warn(
-    '⚠️  No CLIENT_URLS defined! Socket.IO and API CORS will allow everything temporarily.'
+  console.error(
+    '❌  No CLIENT_URLS defined! Please set CLIENT_URLS env var to your front-end domains.'
   );
+  process.exit(1);
 }
 
 app.use(cookieParser());
 app.use(express.json());
+
+// ── CORS for REST API ──
 app.use(
   cors({
-    origin: CLIENT_URLS.length ? CLIENT_URLS : true,
+    origin: CLIENT_URLS,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   })
 );
 
-// ── Serve upload folder ──
+// ── Serve uploads ──
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ── Socket.IO with same CORS ──
+// ── Socket.IO with identical CORS ──
 const io = new Server(httpServer, {
   cors: {
-    origin: CLIENT_URLS.length ? CLIENT_URLS : '*',
+    origin: CLIENT_URLS,
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -60,25 +63,7 @@ mongoose
   .then(async () => {
     console.log('✅  MongoDB connected');
 
-    // patch any docs missing valid coords
-    const patchBadLocations = async (Model, label) => {
-      const bad = await Model.find({
-        $or: [
-          { 'location.coordinates': { $exists: false } },
-          { 'location.coordinates.1': { $exists: false } }
-        ]
-      });
-      if (bad.length) {
-        console.warn(`⚠️  Patching ${bad.length} ${label} docs with [0,0] coords`);
-        for (const doc of bad) {
-          doc.location = { type: 'Point', coordinates: [0, 0] };
-          await doc.save();
-        }
-      }
-    };
-
-    await patchBadLocations(Book, 'Book');
-    await patchBadLocations(Donation, 'Donation');
+    // Ensure geo indexes exist
     await Book.syncIndexes();
     await Donation.syncIndexes();
     console.log('🔄  Geo indexes ready');
@@ -113,12 +98,12 @@ app.use('/api/ai',            aiRoutes);
 
 app.get('/', (_req, res) => res.send('Backend server is running…'));
 
-// global error handler
+// Global error handler
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ message: err.message });
 });
 
-// start server & Socket.IO
+// Start server
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => console.log(`🚀  Listening on port ${PORT}`));
