@@ -1,0 +1,8 @@
+# ignore dependencies
+node_modules/
+**/node_modules/
+
+# environment, logs, OS
+.env
+npm-debug.log*
+.DS_Store
