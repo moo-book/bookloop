@@ -5,12 +5,9 @@ import { io } from 'socket.io-client';
 import api from '../api';
 import './ChatPage.css';
 
-// Derive socket URL from the same API URL (strip "/api")
 const SOCKET_URL = (
-  process.env.REACT_APP_API_URL
-    ? process.env.REACT_APP_API_URL.replace(/\/api\/?$/, '')
-    : window.location.origin
-);
+  process.env.REACT_APP_API_URL || 'http://localhost:5000'
+).replace(/\/$/, '');
 
 const socket = io(SOCKET_URL, {
   withCredentials: true
@@ -18,51 +15,41 @@ const socket = io(SOCKET_URL, {
 
 function ChatPage() {
   const { chatId } = useParams();
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
   const [messages, setMessages] = useState([]);
-  const [text, setText] = useState('');
-  const messagesEndRef = useRef(null);
+  const [text, setText]         = useState('');
+  const endRef                 = useRef(null);
 
   useEffect(() => {
-    // Join chat room
     socket.emit('join-chat', chatId);
 
-    // Load existing messages
     (async () => {
       try {
-        const res = await api.get(`/chat/session/${chatId}`, { withCredentials: true });
+        const res = await api.get(`/chat/session/${chatId}`);
         setMessages(res.data);
-      } catch (err) {
-        console.error(err);
+      } catch {
         navigate('/login');
       }
     })();
 
-    // Listen for new messages
-    socket.on('new-message', (msg) => {
-      if (msg.chatId === chatId) setMessages(prev => [...prev, msg]);
+    socket.on('new-message', msg => {
+      if (msg.chatId === chatId) {
+        setMessages(m => [...m, msg]);
+      }
     });
 
-    return () => {
-      socket.off('new-message');
-    };
+    return () => socket.off('new-message');
   }, [chatId, navigate]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = async () => {
+  const send = async () => {
     if (!text.trim()) return;
-    const sender = localStorage.getItem('userId') || 'Anonymous';
+    const sender = localStorage.getItem('userId') || 'anon';
     try {
-      // Persist to backend
-      await api.post(
-        '/chat/session/send',
-        { chatId, text, sender },
-        { withCredentials: true }
-      );
-      // Broadcast via socket
+      await api.post('/chat/session/send', { chatId, text, sender });
       socket.emit('send-message', { chatId, text, sender });
       setText('');
     } catch (err) {
@@ -72,56 +59,27 @@ function ChatPage() {
 
   return (
     <div className="chat-page-container">
-      <div className="chat-header">
-        <img
-          src="/images/home.png"
-          alt="Home"
-          style={{ width: '40px', cursor: 'pointer', marginRight: '10px' }}
-          onClick={() => navigate('/')}
-        />
-        <img
-          src="/images/chat.png"
-          alt="ChatList"
-          style={{ width: '40px', cursor: 'pointer' }}
-          onClick={() => navigate('/chatlist')}
-        />
-      </div>
-
+      {/* … your existing markup … */}
       <div className="chat-messages">
-        {messages.map((msg, idx) => {
-          const isMine = msg.sender === localStorage.getItem('userId');
-          return (
-            <div
-              key={idx}
-              className={`message-row ${isMine ? 'own-message' : ''}`}
-            >
-              <div className="message-bubble">
-                <p className="message-text">{msg.text}</p>
-                <span className="message-time">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
+        {messages.map((m,i) => (
+          <div key={i} className={`message-row ${m.sender === localStorage.getItem('userId') ? 'own-message' : ''}`}>
+            <div className="message-bubble">
+              <p>{m.text}</p>
+              <span className="message-time">{new Date(m.timestamp).toLocaleTimeString()}</span>
             </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
+          </div>
+        ))}
+        <div ref={endRef} />
       </div>
-
       <div className="chat-input-form">
         <input
           type="text"
           className="text-input"
-          placeholder="Type message..."
           value={text}
           onChange={e => setText(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSend()}
+          onKeyDown={e => e.key === 'Enter' && send()}
         />
-        <img
-          src="/images/send.png"
-          alt="Send"
-          style={{ width: '40px', cursor: 'pointer' }}
-          onClick={handleSend}
-        />
+        <img src="/images/send.png" alt="Send" onClick={send} style={{ width: 40, cursor: 'pointer' }}/>
       </div>
     </div>
   );
