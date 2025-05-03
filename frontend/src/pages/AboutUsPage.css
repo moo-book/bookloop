@@ -1,0 +1,94 @@
+/* src/pages/AboutUsPage.css */
+
+.about-container {
+  background-color: #e8d2bd;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.top-bar {
+  background-color: #e8d2bd;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.center-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.site-title {
+  color: #5c7c67;
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Navy card with creators list */
+.navy-card {
+  background-color: #1b1c2e;
+  color: #fff;
+  width: 400px;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin: auto;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.3rem;
+  text-align: center;
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 0.5rem;
+}
+
+.creators-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.creators-list li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Notification counter styling */
+.notification-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-counter {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+}

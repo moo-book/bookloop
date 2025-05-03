@@ -1,0 +1,124 @@
+/* src/pages/UserBooksListedPage.css */
+
+.user-books-listed-container {
+    background-color: #e8d2bd;
+    min-height: 100vh;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Top bar */
+  .top-bar {
+    background-color: #e8d2bd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+  }
+  
+  /* Left icons for home & personal */
+  .left-icons {
+    display: flex;
+    gap: 0.8rem;
+  }
+  
+  .icon-button {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+  }
+  
+  /* Books list container */
+  .books-list {
+    width: 80%;
+    margin: 1rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* Book cards: exchange or donation */
+  .book-card1 {
+    display: flex;
+    padding: 1rem;
+    border-radius: 8px;
+    position: relative;
+    color: #fff;
+    gap: 1rem;
+  }
+  
+  /* GREEN for exchange, NAVY for donation */
+  .exchange-card {
+    background-color: #5c7c67; /* green */
+  }
+  .donation-card {
+    background-color: #1b1c2e; /* navy */
+  }
+  
+  /* Book cover or placeholder */
+  .cover-wrapper img {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  .placeholder-cover {
+    width: 80px;
+    height: 100px;
+    background-color: #ccc;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Book text info */
+  .book-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .description {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  /* Buttons for delete/update */
+  .buttons-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .delete-btn,
+  .update-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .delete-btn {
+    background-color: #222;
+    color: #fff;
+  }
+  .update-btn {
+    background-color: #5c7c67;
+    color: #fff;
+  }
+  
+  /* "ready for donation/exchange" label on the far right */
+  .status-label {
+    background-color: #f3dcc0;
+    color: #000;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    align-self: flex-end;
+    margin-left: auto;
+    height: fit-content;
+  }
+  

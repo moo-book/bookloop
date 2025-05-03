@@ -1,0 +1,136 @@
+/* src/pages/ExchangeListPage.css */
+
+.exchange-list-container {
+  background-color: #e8d2bd;
+  min-height: 100vh;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.top-bar {
+  background-color: #e8d2bd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.site-branding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.site-title {
+  font-size: 1.6rem;
+  color: #5c7c67;
+  margin: 0;
+  font-weight: bold;
+}
+
+.site-logo {
+  width: 50px;
+  height: auto;
+}
+
+/* Exchange button area */
+.exchange-button-container {
+  margin: 1rem auto;
+  text-align: center;
+}
+
+.big-exchange-button {
+  background-color: #5c7c67;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  padding: 0.7rem 1.5rem;
+  cursor: pointer;
+}
+
+/* Nearest / reset button */
+.nearest-button-container {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.nearest-btn {
+  background-color: #5c7c67;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  margin: 0 0.3rem;
+  cursor: pointer;
+}
+.nearest-btn.active {
+  background-color: #c55;
+}
+
+/* Book list (cards) */
+.book-list {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Single card row (original dimensions) */
+.book-card2 {
+  background-color: #5c7c67;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Cover or placeholder image */
+.book-cover img {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Book information */
+.book-info {
+  flex: 1;
+  margin-left: 1rem;
+}
+
+.book-description {
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+/* Exchange button on each card */
+.exchange-btn {
+  background-color: #1b1c2e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+/* Pagination styling */
+.pagination {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.page-numbers {
+  margin: 0 0.7rem;
+  font-weight: bold;
+}

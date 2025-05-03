@@ -1,0 +1,208 @@
+/* src/pages/PersonalPage.css */
+
+.personal-page-container {
+  background-color: #e8d2bd;
+  min-height: 100vh;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top Bar ---------- */
+.top-bar {
+  background-color: #5c7c67;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+}
+
+.left-icons {
+  display: flex;
+  gap: 1rem;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.page-title {
+  color: #5c7c67;
+  font-size: 1.6rem;
+  margin: 0;
+  font-weight: bold;
+}
+
+.signout-btn {
+  background-color: #5c7c67;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0.3rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* ---------- Profile Section ---------- */
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.profile-pic-wrapper {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.profile-pic {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto 0.5rem;
+}
+
+.profile-placeholder {
+  width: 150px;
+  height: 150px;
+  background-color: #ccc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+}
+
+/* ---------- Info Block ---------- */
+.info-block {
+  background-color: #5c7c67;
+  width: 300px;
+  border-radius: 10px;
+  color: #fff;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* Edit Row for individual fields */
+.edit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.edit-row label {
+  font-weight: bold;
+  margin-right: 0.5rem;
+  color: #fff;
+  min-width: 80px;
+}
+
+.edit-row span {
+  flex: 1;
+}
+
+/* Inputs/Textareas for editing */
+.edit-row input,
+.edit-row textarea {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #000;
+}
+
+.edit-row textarea {
+  min-height: 40px;  
+  min-width: 150px;/* Make quote box bigger */
+}
+
+/* Buttons for edit/save/cancel, matching My Listed Books button */
+.edit-btn,
+.save-btn,
+.cancel-btn,
+.save-pic-btn {
+  background-color: #1b1c2e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.save-btn,
+.cancel-btn {
+  margin-left: 0.5rem;
+}
+
+/* My Listed Books button */
+.mybooks-btn {
+  background-color: #1b1c2e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* ---------- Books Listing ---------- */
+.exchange-books-title {
+  margin: 2rem 0 1rem 5%;
+  color: #5c7c67;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.books-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 90%;
+  margin: 0 auto 2rem;
+}
+
+/* Basic card styling for all items */
+.item-card {
+  color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* If the item is an exchange book => green background */
+.green-card {
+  background-color: #5c7c67; /* a green tone */
+}
+
+/* If the item is a donated book => blue background */
+.blue-card {
+  background-color: #1b1c2e; /* a blue tone */
+}
+
+.book-cover img {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.book-info {
+  margin-top: 0.5rem;
+}
+.center-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

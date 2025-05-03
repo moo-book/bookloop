@@ -1,0 +1,59 @@
+/* src/pages/LoginPage.css */
+
+/* Reset defaults */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body, html { font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+/* Container */
+.login-container {
+  background-color: #e8d2bd;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Top bar */
+.login-top-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.site-title { font-size: 2.2rem; color: #5c7c67; font-weight: bold; }
+.infinity-icon { width: 60px; height: auto; margin-top: 0.5rem; }
+
+/* Form box */
+.form-box {
+  background-color: #5c7c67;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  padding: 2rem;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.form-box label { display: block; margin-bottom: 0.5rem; font-size: 1rem; }
+.input-field {
+  width: 100%; padding: 0.75rem; margin-bottom: 1.2rem;
+  border: none; border-radius: 4px; font-size: 1rem; color: #000;
+}
+
+/* Button */
+.login-button {
+  background-color: #333; color: #fff; width: 100%;
+  padding: 0.75rem; border: none; border-radius: 4px; font-size: 1rem;
+  cursor: pointer; transition: background-color 0.3s ease;
+}
+.login-button:hover { background-color: #222; }
+
+/* Bottom link */
+.bottom-text {
+  margin-top: 1rem; font-size: 0.9rem; color: #fff; text-align: center;
+}
+.register-link {
+  color: #fff; text-decoration: underline; cursor: pointer;
+}
+.register-link:hover { color: #ccc; }

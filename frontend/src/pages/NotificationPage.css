@@ -1,0 +1,165 @@
+/* src/pages/NotificationPage.css */
+
+.notification-container {
+  background-color: #e8d2bd;
+  min-height: 100vh;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.top-bar {
+  background-color: #e8d2bd;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+/* Center brand */
+.center-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.site-title {
+  font-size: 1.6rem;
+  color: #5c7c67;
+  margin: 0;
+  font-weight: bold;
+}
+
+.site-logo {
+  width: 50px;
+  height: auto;
+}
+
+/* Cards wrapper */
+.cards-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 90%;
+  margin: 1.5rem auto;
+  justify-content: flex-start;
+}
+
+/* Each notification card, color-coded if donate or exchange */
+.notify-card {
+  width: 220px;
+  border-radius: 8px;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* donation = green, exchange = navy */
+.donate-card {
+  background-color: #5c7c67;
+}
+.exchange-card {
+  background-color: #1b1c2e;
+}
+
+/* Card header: avatar, name, request type, menu dots */
+.card-header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #e2cde2;
+  color: #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-info h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+.user-info span {
+  font-size: 0.8rem;
+  color: #f7f7f7;
+  opacity: 0.9;
+}
+
+.menu-dots {
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* Main image area */
+.image-area {
+  background-color: #ccc; 
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-area img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+/* Text area */
+.text-area {
+  padding: 0.5rem;
+}
+
+.text-area h5 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+}
+.subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #d9d9d9;
+}
+.body-text {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+/* Action buttons row */
+.action-buttons {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.5rem;
+  justify-content: flex-end;
+}
+
+.reject-btn,
+.accept-btn {
+  background-color: #f3dcc0;
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
